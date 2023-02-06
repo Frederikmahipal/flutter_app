@@ -1,14 +1,9 @@
 import 'package:equatable/equatable.dart';
 
 abstract class QrEvent extends Equatable {
-  const QrEvent();
 }
 
-class ScanEvent extends QrEvent {
-  final String result;
-
-  const ScanEvent(this.result);
-
+class StartScanning extends QrEvent {
   @override
-  List<Object> get props => [result];
+  List<Object> get props => [];
 }

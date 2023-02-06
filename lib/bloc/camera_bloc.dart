@@ -1,28 +1,35 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 
-class CameraBloc extends Bloc<void, List<CameraDescription>> {
-  CameraBloc() : super(const []);
+part 'camera_event.dart';
+part 'camera_state.dart';
 
-  @override
-  Stream<List<CameraDescription>> mapEventToState(void _) async* {
+class CameraBloc extends Bloc<CameraEvent, CameraState> {
+  CameraBloc() : super(CameraInitial()) {
+    on<GetCameras>((event, emit) async {
+      await _handleGetCameras(event, emit);
+    });
+  }
+
+  Future<void> _handleGetCameras(GetCameras event, Function emit) async {
+    emit(CameraLoading());
     try {
       final cameras = await availableCameras();
-      yield cameras;
+      final controller = CameraController(cameras[0], ResolutionPreset.medium);
+      await controller.initialize();
+      emit(CamerasLoaded(controller));
     } on PlatformException catch (e) {
-      print(e);
-      yield [];
+      emit(CameraError(error: e.toString()));
     }
   }
-}
 
-Future<bool> initializeCamera() async {
-  late CameraController cameraController;
-  final cameras = await availableCameras();
-  if (cameras.isNotEmpty) {
-    cameraController = CameraController(cameras.first, ResolutionPreset.high);
-    await cameraController.initialize();
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    print('$error, $stackTrace');
+    super.onError(error, stackTrace);
   }
-  return initializeCamera();
 }

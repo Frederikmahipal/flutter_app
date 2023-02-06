@@ -1,58 +1,57 @@
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import './bloc/camera_bloc.dart';
 
 class CameraScreen extends StatefulWidget {
   @override
-  _CameraScreenState createState() => _CameraScreenState();
+  CameraScreenState createState() => CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
-  bool _isReady = false;
-  
-  get cameraController => null;
+class CameraScreenState extends State<CameraScreen> {
+  final _cameraBloc = CameraBloc();
 
   @override
-  void initState() {
-    super.initState();
-    initializeCamera();
-}
+  void dispose() {
+    _cameraBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: (() {
-            Navigator.pop(context);
-          }),
-        ),
+        title: const Text('Take a picture'),
       ),
-      body: Center(
-        child: !_isReady
-            ? const Text("No cameras available")
-            : CupertinoButton.filled(
-                child: const Text('Take a photo'),
-                onPressed: () async {
-                  final path = join(
-                    (await getTemporaryDirectory()).path,
-                    '${DateTime.now()}.jpg',
-                  );
-                  await cameraController.takePicture();
-                  Navigator.pop(context, path);
-                },
-              ),
+      body: Column(
+        children: [
+          Expanded(
+            child: BlocBuilder<CameraBloc, CameraState>(
+              bloc: _cameraBloc,
+              builder: (context, state) {
+                if (state is CameraLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is CamerasLoaded) {
+                  return CameraPreview(state.controller);
+                }
+                if (state is CameraError) {
+                  return Text('Something went wrong');
+                }
+                return Container();
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.camera_alt),
+        onPressed: () {
+          _cameraBloc.add(GetCameras());
+        },
       ),
     );
   }
-
-  @override
-  void dispose() {
-    cameraController?.dispose();
-    super.dispose();
-  }
 }
+

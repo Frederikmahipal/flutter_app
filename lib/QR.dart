@@ -1,42 +1,42 @@
+import 'package:app/bloc/qr_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'bloc/qr_bloc.dart';
-class QRScreen extends StatefulWidget {
-  @override
-  _QRScreenState createState() => _QRScreenState();
-}
+import 'package:provider/provider.dart';
+import './bloc/qr_bloc.dart';
+import './bloc/qr_state.dart';
 
-class _QRScreenState extends State<QRScreen> {
+class QRScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final qrBloc = Provider.of<QrBloc>(context);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Center(
-        child: BlocBuilder<QrBloc, QrState>(
-          builder: (context, state) {
-            return MobileScanner(
+      body: BlocBuilder<QrBloc, QrState>(
+        bloc: qrBloc,
+        builder: (context, state) {
+          return Container(
+            child: MobileScanner(
               allowDuplicates: false,
               controller: MobileScannerController(
-                facing: CameraFacing.back,
-                torchEnabled: true,
+                facing: CameraFacing.back, 
+                torchEnabled: true
               ),
               onDetect: (barcode, args) {
                 if (barcode.rawValue == null) {
-                  debugPrint('failed to scan');
+                  qrBloc.add(QrError("Failed to scan") as QrEvent);
                 } else {
                   final String code = barcode.rawValue!;
+                  qrBloc.add(QrLoaded(code) as QrEvent);
                 }
               },
-            );
-          },
+            ),
+          );
+        },
+      ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
     );
