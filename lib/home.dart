@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'camera.dart';
 import 'qr.dart';
 
+
+/*
+Homescreen widget
+returns a scaffold containing 2 buttons, used for navigation
+*/
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('welcome'),
+        title: Text('Starter app'),
       ),
       body: Center(
         child: Column(
@@ -25,7 +30,7 @@ class HomeScreen extends StatelessWidget {
                 );
               }, 
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             CupertinoButton.filled(
               child: Text('Go to QR'),
               onPressed: () {

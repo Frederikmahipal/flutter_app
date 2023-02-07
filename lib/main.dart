@@ -9,6 +9,13 @@ void main() {
   runApp(MyApp());
 }
 
+/*
+multiprovider used for providing instances of the blocs used. blocs can be
+access anywhere
+the app is using materialapp
+home destination is set to homescreen
+*/
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -18,7 +25,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<QrBloc>(create: (context) => QrBloc()),
       ],
       child: MaterialApp(
-        title: 'Camera',
+        title: 'starter app',
         home: HomeScreen(),
       ),
     );

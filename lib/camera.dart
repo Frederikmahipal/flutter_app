@@ -1,17 +1,29 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sizer/sizer.dart';
 
 import './bloc/camera_bloc.dart';
 
+//camerascreen widget, displays the view
 class CameraScreen extends StatefulWidget {
   @override
   CameraScreenState createState() => CameraScreenState();
 }
 
+/*
+extends the state
+build method returns Scaffold widget, body contains expanded which is used for
+the blocbuilder to display the state of the camera
+
+button is used to trigger event, blocbuilder listens to cameraBloc and renders
+UI based on the state
+*/
 class CameraScreenState extends State<CameraScreen> {
   final _cameraBloc = CameraBloc();
 
+//dispose is used to close the 'connection'
   @override
   void dispose() {
     _cameraBloc.close();
@@ -45,7 +57,7 @@ class CameraScreenState extends State<CameraScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: CupertinoButton.filled(
         child: const Icon(Icons.camera_alt),
         onPressed: () {
           _cameraBloc.add(GetCameras());
